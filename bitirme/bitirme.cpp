@@ -173,8 +173,6 @@ int main() {
 		while (1) {
 
 
-			//robot->SetLinearVelocity(b2Vec2(1, 0));
-
 
 			b2Vec2 hiz((rand() % 3) - 1, (rand() % 3) - 1);
 
@@ -305,10 +303,7 @@ int main() {
 				}
 
 				/////////////////
-				// noktanin uygunlugunu kontrol et
-				//if (x > obstacleobje->GetPosition().x*SCALE - 256 - 25 && x<obstacleobje->GetPosition().x*SCALE + 256 + 25 && y>obstacleobje->GetPosition().y*SCALE - 20 - 25 && y < obstacleobje->GetPosition().y*SCALE + 20 + 25) {
-				//	if (y > obstacleobje->GetPosition().y*SCALE - 128 - 25 && y<obstacleobje->GetPosition().y*SCALE + 128 + 25 && x>obstacleobje->GetPosition().x - 20 - 25 && x < obstacleobje->GetPosition().x + 20 + 25)
-				//		continue;}
+				
 				
 				robot->SetLinearVelocity(b2Vec2(0, 0));
 				object1->SetLinearVelocity(b2Vec2(0, 0));
@@ -494,200 +489,339 @@ int main() {
 		 system("PAUSE");
 		 return 0;
 	 }
-	 std::reverse(yol.begin(), yol.end());
-	 for (int i = 0; i < yol.size(); i++)
-		 printf("%d %d %0.f %0.f\n",i, yol[i],motiongraph[yol[i]].coordinate.x, motiongraph[yol[i]].coordinate.y);
+	 
+		 std::reverse(yol.begin(), yol.end());
+		 for (int i = 0; i < yol.size(); i++)
+			 printf("%d %d %0.f %0.f\n", i, yol[i], motiongraph[yol[i]].coordinate.x, motiongraph[yol[i]].coordinate.y);
 
-	 int totaldistance = 0;
-	 for (int i = 0; i < yol.size() - 1; i++) {
-		 totaldistance += motiongraph[yol[i]].find_distance(motiongraph[yol[i + 1]]);
-		 printf("%0.f\n", motiongraph[yol[i]].find_distance(motiongraph[yol[i + 1]]));
-	 }
+		 int totaldistance = 0;
+		 for (int i = 0; i < yol.size() - 1; i++) {
+			 totaldistance += motiongraph[yol[i]].find_distance(motiongraph[yol[i + 1]]);
+			 printf("%0.f\n", motiongraph[yol[i]].find_distance(motiongraph[yol[i + 1]]));
+		 }
 
-	 printf("total distance:%d\n",totaldistance);
-	 elapsedtime = ((double)bitiszamani - baslangiczamani) / CLOCKS_PER_SEC * 1000;
-	 printf("elapsed time:%ld ms\n", elapsedtime);
+		 printf("total distance:%d\n", totaldistance);
+		 elapsedtime = ((double)bitiszamani - baslangiczamani) / CLOCKS_PER_SEC * 1000;
+		 printf("elapsed time:%ld ms\n", elapsedtime);
 		 /////return inintial positions
-	 robot->SetLinearVelocity(b2Vec2(0,0));
-	 robot->SetTransform(b2Vec2(robotbaslangic.x/SCALE,robotbaslangic.y/SCALE), 0);
-	 object1->SetLinearVelocity(b2Vec2(0,0));
-	 object1->SetTransform(b2Vec2(objebaslangic.x / SCALE, objebaslangic.y / SCALE), 0);
-	 object1->SetAngularVelocity(0);
-	
+		 robot->SetLinearVelocity(b2Vec2(0, 0));
+		 robot->SetTransform(b2Vec2(robotbaslangic.x / SCALE, robotbaslangic.y / SCALE), 0);
+		 object1->SetLinearVelocity(b2Vec2(0, 0));
+		 object1->SetTransform(b2Vec2(objebaslangic.x / SCALE, objebaslangic.y / SCALE), 0);
+		 object1->SetAngularVelocity(0);
+
+
+
+		 //////
+		 int say = 0;
+		 int x_karsilastir;
+		 int y_karsilastir;
+		 bool ilki = 1;
+
+		 //sfml
+
+		 printf("\nsimulation is starting\n");
+		 system("PAUSE");
+		 sf::RenderWindow Window(sf::VideoMode(800, 600, 32), "Simulation");
+		 Window.setFramerateLimit(60);
+
+		 int carp = 0;
+
+		 while (Window.isOpen()) {
+
+			 sf::Event event;
+			 while (Window.pollEvent(event))
+			 {
+
+				 if (event.type == sf::Event::Closed)
+					 Window.close();
+
+				 if (event.type == sf::Event::KeyPressed) {
+					 if (event.key.code == sf::Keyboard::D)
+						 robot->SetLinearVelocity(b2Vec2(5, 0));
+					 else if (event.key.code == sf::Keyboard::A)
+						 robot->SetLinearVelocity(b2Vec2(-5, 0));
+					 else if (event.key.code == sf::Keyboard::W)
+						 robot->SetLinearVelocity(b2Vec2(0, -5));
+					 else if (event.key.code == sf::Keyboard::S)
+						 robot->SetLinearVelocity(b2Vec2(0, 5));
+				 }
+			 }
+
+
+
+			 Window.clear(sf::Color::White);
+			 World.Step(1 / 30.f, 8, 3);
+
+			 sf::CircleShape robot_shape(25);
+			 robot_shape.setOrigin(25, 25);
+			 robot_shape.setPosition(robot->GetPosition().x*SCALE, robot->GetPosition().y*SCALE);
+			 robot_shape.setFillColor(sf::Color::Blue);
+			 robot_shape.setRotation(robot->GetAngle() * 180 / b2_pi);
+			 Window.draw(robot_shape);
+
+			 sf::RectangleShape object1_shape(sf::Vector2f(50, 50));
+			 object1_shape.setOrigin(25, 25);
+			 object1_shape.setPosition(object1->GetPosition().x*SCALE, object1->GetPosition().y*SCALE);
+			 object1_shape.setFillColor(sf::Color::Red);
+			 object1_shape.setRotation(object1->GetAngle() * 180 / b2_pi);
+			 Window.draw(object1_shape);
+
+
+			 //obstacle
+			 if (sekilal == '1')
+			 {
+				 sf::ConvexShape obstacleshape;
+				 obstacleshape.setPointCount(8);
+				 obstacleshape.setPoint(0, sf::Vector2f(0, 128));
+				 obstacleshape.setPoint(1, sf::Vector2f(-20, 20));
+				 obstacleshape.setPoint(2, sf::Vector2f(-256, 0));
+				 obstacleshape.setPoint(3, sf::Vector2f(-20, -20));
+				 obstacleshape.setPoint(4, sf::Vector2f(0, -128));
+				 obstacleshape.setPoint(5, sf::Vector2f(20, -20));
+				 obstacleshape.setPoint(6, sf::Vector2f(256, 0));
+				 obstacleshape.setPoint(7, sf::Vector2f(20, 20));
+
+				 obstacleshape.setPosition(obstacleobje->GetPosition().x * SCALE, obstacleobje->GetPosition().y * SCALE);
+				 obstacleshape.setRotation(180 / b2_pi * obstacleobje->GetAngle());
+
+				 obstacleshape.setFillColor(sf::Color(100, 250, 50));
+				 Window.draw(obstacleshape);
+			 }
+			 ////
+			 else if (sekilal == '2')
+			 {
+				 sf::RectangleShape rectangle(sf::Vector2f(420, 20));
+				 rectangle.setPosition(obstacleobje->GetPosition().x * SCALE - 200, obstacleobje->GetPosition().y * SCALE - 170);
+				 rectangle.setRotation(180 / b2_pi * obstacleobje->GetAngle());
+				 rectangle.setFillColor(sf::Color(100, 250, 50));
+				 Window.draw(rectangle);
+				 sf::RectangleShape rectangle1(sf::Vector2f(420, 20));
+				 rectangle1.setPosition(obstacleobje->GetPosition().x * SCALE - 200, obstacleobje->GetPosition().y * SCALE + 150);
+				 rectangle1.setRotation(180 / b2_pi * obstacleobje->GetAngle());
+				 rectangle1.setFillColor(sf::Color(100, 250, 50));
+				 Window.draw(rectangle1);
+				 sf::RectangleShape rectangle2(sf::Vector2f(20, 300));
+				 rectangle2.setPosition(obstacleobje->GetPosition().x * SCALE + 200, obstacleobje->GetPosition().y * SCALE - 150);
+				 rectangle2.setRotation(180 / b2_pi * obstacleobje->GetAngle());
+				 rectangle2.setFillColor(sf::Color(100, 250, 50));
+				 Window.draw(rectangle2);
+			 }
+			 /////
+			 else if (sekilal == '3')
+			 {
+				 sf::RectangleShape rectangle(sf::Vector2f(20, 100));
+				 rectangle.setPosition(obstacleobje->GetPosition().x * SCALE - 120, obstacleobje->GetPosition().y * SCALE - 200);
+				 rectangle.setRotation(180 / b2_pi * obstacleobje->GetAngle());
+				 rectangle.setFillColor(sf::Color(100, 250, 50));
+				 Window.draw(rectangle);
+
+				 sf::RectangleShape rectangle1(sf::Vector2f(20, 100));
+				 rectangle1.setPosition(obstacleobje->GetPosition().x * SCALE + 100, obstacleobje->GetPosition().y * SCALE + 100);
+				 rectangle1.setRotation(180 / b2_pi * obstacleobje->GetAngle());
+				 rectangle1.setFillColor(sf::Color(100, 250, 50));
+				 Window.draw(rectangle1);
+
+				 sf::ConvexShape obstacleshape;
+				 obstacleshape.setPointCount(4);
+				 obstacleshape.setPoint(0, sf::Vector2f(-100, -100));
+				 obstacleshape.setPoint(1, sf::Vector2f(120, 100));
+				 obstacleshape.setPoint(2, sf::Vector2f(100, 100));
+				 obstacleshape.setPoint(3, sf::Vector2f(-120, -100));
+
+
+				 obstacleshape.setPosition(obstacleobje->GetPosition().x * SCALE, obstacleobje->GetPosition().y * SCALE);
+				 obstacleshape.setRotation(180 / b2_pi * obstacleobje->GetAngle());
+
+				 obstacleshape.setFillColor(sf::Color(100, 250, 50));
+				 Window.draw(obstacleshape);
+			 }
+
+
+			 //moving
+
+
+			 int x_degeri = robot->GetPosition().x*SCALE;
+			 int y_degeri = robot->GetPosition().y*SCALE;
+			 if (ilki) {
+				 //robot->SetLinearVelocity(b2Vec2((motiongraph[yol[say + 1]].coordinate.x - motiongraph[yol[say]].coordinate.x) / (SCALE), (motiongraph[yol[say + 1]].coordinate.y - motiongraph[yol[say]].coordinate.y) / (SCALE)));
+				 //printf("%0.f %0.f\n", abs(motiongraph[yol[say + 1]].coordinate.x - motiongraph[yol[say]].coordinate.x),abs( motiongraph[yol[say + 1]].coordinate.y - motiongraph[yol[say]].coordinate.y));
+				 float degerx = motiongraph[yol[say + 1]].coordinate.x - motiongraph[yol[say]].coordinate.x;
+				 float degery = motiongraph[yol[say + 1]].coordinate.y - motiongraph[yol[say]].coordinate.y;
+				 if (abs(degerx) > 100 || abs(degery) > 100)
+				 {
+					 while (1) {
+						 degerx = degerx / 1.5;
+						 degery = degery / 1.5;
+						 if (abs(degerx) < 100 && abs(degery) < 100)
+							 break;
+					 }
+				 }
+
+				 robot->SetLinearVelocity(b2Vec2(degerx / SCALE, degery / SCALE));
+				 say++;
+
+				 x_karsilastir = x_degeri - motiongraph[yol[say]].coordinate.x;
+				 y_karsilastir = y_degeri - motiongraph[yol[say]].coordinate.y;
+				 ilki = 0;
+			 }
+			 if (say < yol.size() - 1) {
+				 if (x_karsilastir * (x_degeri - motiongraph[yol[say]].coordinate.x) < 0 || y_karsilastir * (y_degeri - motiongraph[yol[say]].coordinate.y) < 0) {
+
+
+					 printf("%d\n", say);
+					 //sf::sleep(sf::seconds(1));
+					 if (motiongraph[yol[say + 1]].coordinate.x == motiongraph[yol[say]].coordinate.x && motiongraph[yol[say + 1]].coordinate.y == motiongraph[yol[say]].coordinate.y)
+						 say++;
+					 ilki = 1;
+
+				 }
+			 }
+
+
+			 Window.display();
+		 }
+
+		 printf("simulation ended\n ");
 	 
-	
-	//////
-	int say=0;
-	int x_karsilastir;
-	int y_karsilastir;
-	bool ilki=1;
-	
-	 //sfml
-	 
-	printf("\nsimulation is starting\n");
-	system("PAUSE");
-	sf::RenderWindow Window(sf::VideoMode(800, 600, 32), "Simulation");
-	Window.setFramerateLimit(60);
+	 printf("graph press 1:");
+	////
+	char olsunmu;
+	cin >> olsunmu;
+	if(olsunmu)
+	{ 
+		sf::RenderWindow Window1(sf::VideoMode(800, 600, 32), "Graph");
+		Window1.setFramerateLimit(60);
 
-	int carp = 0;
-
-	while(Window.isOpen()){
-		
-		sf::Event event;
-		while (Window.pollEvent(event))
-       	 	{
-            
-            		if (event.type == sf::Event::Closed)
-                		Window.close();
-
-					if(event.type==sf::Event::KeyPressed){
-						if(event.key.code==sf::Keyboard::D)
-							robot->SetLinearVelocity(b2Vec2(5,0));
-						else if(event.key.code==sf::Keyboard::A)
-							robot->SetLinearVelocity(b2Vec2(-5,0));
-						else if(event.key.code==sf::Keyboard::W)
-							robot->SetLinearVelocity(b2Vec2(0,-5));
-						else if(event.key.code==sf::Keyboard::S)
-							robot->SetLinearVelocity(b2Vec2(0,5));
-					}
-			}
-		
 		
 
-		Window.clear(sf::Color::White);
-		World.Step(1/30.f, 8, 3);		
-		
-		sf::CircleShape robot_shape(25);
-		robot_shape.setOrigin(25,25);
-		robot_shape.setPosition(robot->GetPosition().x*SCALE,robot->GetPosition().y*SCALE);
-		robot_shape.setFillColor(sf::Color::Blue);
-		robot_shape.setRotation(robot->GetAngle() * 180/b2_pi);
-		Window.draw(robot_shape);
+		while (Window1.isOpen()) {
 
-		sf::RectangleShape object1_shape(sf::Vector2f(50,50));
-		object1_shape.setOrigin(25,25);
-		object1_shape.setPosition(object1->GetPosition().x*SCALE,object1->GetPosition().y*SCALE);
-		object1_shape.setFillColor(sf::Color::Red);
-		object1_shape.setRotation(object1->GetAngle() * 180/b2_pi);
-		Window.draw(object1_shape);
-
-
-		//obstacle
-		if (sekilal == '1')
-		{
-			sf::ConvexShape obstacleshape;
-			obstacleshape.setPointCount(8);
-			obstacleshape.setPoint(0, sf::Vector2f(0, 128));
-			obstacleshape.setPoint(1, sf::Vector2f(-20, 20));
-			obstacleshape.setPoint(2, sf::Vector2f(-256, 0));
-			obstacleshape.setPoint(3, sf::Vector2f(-20, -20));
-			obstacleshape.setPoint(4, sf::Vector2f(0, -128));
-			obstacleshape.setPoint(5, sf::Vector2f(20, -20));
-			obstacleshape.setPoint(6, sf::Vector2f(256, 0));
-			obstacleshape.setPoint(7, sf::Vector2f(20, 20));
-
-			obstacleshape.setPosition(obstacleobje->GetPosition().x * SCALE, obstacleobje->GetPosition().y * SCALE);
-			obstacleshape.setRotation(180 / b2_pi * obstacleobje->GetAngle());
-
-			obstacleshape.setFillColor(sf::Color(100, 250, 50));
-			Window.draw(obstacleshape);
-		}
-		////
-		else if (sekilal == '2')
-		{
-			sf::RectangleShape rectangle(sf::Vector2f(420, 20));
-			rectangle.setPosition(obstacleobje->GetPosition().x * SCALE - 200, obstacleobje->GetPosition().y * SCALE - 170);
-			rectangle.setRotation(180 / b2_pi * obstacleobje->GetAngle());
-			rectangle.setFillColor(sf::Color(100, 250, 50));
-			Window.draw(rectangle);
-			sf::RectangleShape rectangle1(sf::Vector2f(420, 20));
-			rectangle1.setPosition(obstacleobje->GetPosition().x * SCALE - 200, obstacleobje->GetPosition().y * SCALE + 150);
-			rectangle1.setRotation(180 / b2_pi * obstacleobje->GetAngle());
-			rectangle1.setFillColor(sf::Color(100, 250, 50));
-			Window.draw(rectangle1);
-			sf::RectangleShape rectangle2(sf::Vector2f(20, 300));
-			rectangle2.setPosition(obstacleobje->GetPosition().x * SCALE + 200, obstacleobje->GetPosition().y * SCALE - 150);
-			rectangle2.setRotation(180 / b2_pi * obstacleobje->GetAngle());
-			rectangle2.setFillColor(sf::Color(100, 250, 50));
-			Window.draw(rectangle2);
-		}
-		/////
-		else if (sekilal == '3')
-		{
-			sf::RectangleShape rectangle(sf::Vector2f(20, 100));
-			rectangle.setPosition(obstacleobje->GetPosition().x * SCALE - 120, obstacleobje->GetPosition().y * SCALE - 200);
-			rectangle.setRotation(180 / b2_pi * obstacleobje->GetAngle());
-			rectangle.setFillColor(sf::Color(100, 250, 50));
-			Window.draw(rectangle);
-
-			sf::RectangleShape rectangle1(sf::Vector2f(20, 100));
-			rectangle1.setPosition(obstacleobje->GetPosition().x * SCALE + 100, obstacleobje->GetPosition().y * SCALE +100);
-			rectangle1.setRotation(180 / b2_pi * obstacleobje->GetAngle());
-			rectangle1.setFillColor(sf::Color(100, 250, 50));
-			Window.draw(rectangle1);
-
-			sf::ConvexShape obstacleshape;
-			obstacleshape.setPointCount(4);
-			obstacleshape.setPoint(0, sf::Vector2f(-100, -100));
-			obstacleshape.setPoint(1, sf::Vector2f(120, 100));
-			obstacleshape.setPoint(2, sf::Vector2f(100, 100));
-			obstacleshape.setPoint(3, sf::Vector2f(-120, -100));
-			
-
-			obstacleshape.setPosition(obstacleobje->GetPosition().x * SCALE, obstacleobje->GetPosition().y * SCALE);
-			obstacleshape.setRotation(180 / b2_pi * obstacleobje->GetAngle());
-
-			obstacleshape.setFillColor(sf::Color(100, 250, 50));
-			Window.draw(obstacleshape);
-		}
-		
-		
-		//moving
-		
-		
-		int x_degeri = robot->GetPosition().x*SCALE;
-		int y_degeri = robot->GetPosition().y*SCALE;
-		if (ilki) {
-			//robot->SetLinearVelocity(b2Vec2((motiongraph[yol[say + 1]].coordinate.x - motiongraph[yol[say]].coordinate.x) / (SCALE), (motiongraph[yol[say + 1]].coordinate.y - motiongraph[yol[say]].coordinate.y) / (SCALE)));
-			//printf("%0.f %0.f\n", abs(motiongraph[yol[say + 1]].coordinate.x - motiongraph[yol[say]].coordinate.x),abs( motiongraph[yol[say + 1]].coordinate.y - motiongraph[yol[say]].coordinate.y));
-			float degerx = motiongraph[yol[say + 1]].coordinate.x - motiongraph[yol[say]].coordinate.x; 
-			float degery= motiongraph[yol[say + 1]].coordinate.y - motiongraph[yol[say]].coordinate.y;
-			if (abs(degerx) > 100 || abs(degery) > 100)
+			sf::Event event1;
+			while (Window1.pollEvent(event1))
 			{
-				while (1) {
-					degerx = degerx / 1.5;
-					degery = degery / 1.5;
-					if (abs(degerx) < 100 && abs(degery) < 100)
-						break;
+
+				if (event1.type == sf::Event::Closed)
+					Window1.close();
+			}
+			Window1.clear(sf::Color::White);
+
+			for (int i = 0; i < motiongraph.size(); i++) {
+				sf::CircleShape nokta(2);
+				nokta.setOrigin(2, 2);
+				nokta.setPosition(motiongraph[i].coordinate.x, motiongraph[i].coordinate.y);
+				nokta.setFillColor(sf::Color::Blue);
+				
+				Window1.draw(nokta);
+
+				for (int j = 0; j < motiongraph[i].next.size(); j++) {
+					sf::VertexArray lines(sf::LinesStrip, 2);
+					lines[0].position = sf::Vector2f(motiongraph[i].coordinate.x, motiongraph[i].coordinate.y);
+					lines[1].position = sf::Vector2f(motiongraph[i].next[j]->coordinate.x,motiongraph[i].next[j]->coordinate.y );
+					lines[0].color = sf::Color::Black;
+					lines[1].color = sf::Color::Black;
+					Window1.draw(lines);
 				}
 			}
-			
-			robot->SetLinearVelocity(b2Vec2(degerx/SCALE, degery/SCALE));
-			say++;
 
-			x_karsilastir = x_degeri - motiongraph[yol[say]].coordinate.x;
-			y_karsilastir = y_degeri - motiongraph[yol[say]].coordinate.y;
-			ilki = 0;
-		}
-		if (say < yol.size() - 1) {
-			if (x_karsilastir * (x_degeri - motiongraph[yol[say]].coordinate.x) < 0 || y_karsilastir * (y_degeri - motiongraph[yol[say]].coordinate.y) < 0) {
+			//////////
+			if (sekilal == '1')
+			{
+				sf::ConvexShape obstacleshape;
+				obstacleshape.setPointCount(8);
+				obstacleshape.setPoint(0, sf::Vector2f(0, 128));
+				obstacleshape.setPoint(1, sf::Vector2f(-20, 20));
+				obstacleshape.setPoint(2, sf::Vector2f(-256, 0));
+				obstacleshape.setPoint(3, sf::Vector2f(-20, -20));
+				obstacleshape.setPoint(4, sf::Vector2f(0, -128));
+				obstacleshape.setPoint(5, sf::Vector2f(20, -20));
+				obstacleshape.setPoint(6, sf::Vector2f(256, 0));
+				obstacleshape.setPoint(7, sf::Vector2f(20, 20));
+
+				obstacleshape.setPosition(obstacleobje->GetPosition().x * SCALE, obstacleobje->GetPosition().y * SCALE);
+				obstacleshape.setRotation(180 / b2_pi * obstacleobje->GetAngle());
+
+				obstacleshape.setFillColor(sf::Color(100, 250, 50));
+				Window1.draw(obstacleshape);
+			}
+			////
+			else if (sekilal == '2')
+			{
+				sf::RectangleShape rectangle(sf::Vector2f(420, 20));
+				rectangle.setPosition(obstacleobje->GetPosition().x * SCALE - 200, obstacleobje->GetPosition().y * SCALE - 170);
+				rectangle.setRotation(180 / b2_pi * obstacleobje->GetAngle());
+				rectangle.setFillColor(sf::Color(100, 250, 50));
+				Window1.draw(rectangle);
+				sf::RectangleShape rectangle1(sf::Vector2f(420, 20));
+				rectangle1.setPosition(obstacleobje->GetPosition().x * SCALE - 200, obstacleobje->GetPosition().y * SCALE + 150);
+				rectangle1.setRotation(180 / b2_pi * obstacleobje->GetAngle());
+				rectangle1.setFillColor(sf::Color(100, 250, 50));
+				Window1.draw(rectangle1);
+				sf::RectangleShape rectangle2(sf::Vector2f(20, 300));
+				rectangle2.setPosition(obstacleobje->GetPosition().x * SCALE + 200, obstacleobje->GetPosition().y * SCALE - 150);
+				rectangle2.setRotation(180 / b2_pi * obstacleobje->GetAngle());
+				rectangle2.setFillColor(sf::Color(100, 250, 50));
+				Window1.draw(rectangle2);
+			}
+			/////
+			else if (sekilal == '3')
+			{
+				sf::RectangleShape rectangle(sf::Vector2f(20, 100));
+				rectangle.setPosition(obstacleobje->GetPosition().x * SCALE - 120, obstacleobje->GetPosition().y * SCALE - 200);
+				rectangle.setRotation(180 / b2_pi * obstacleobje->GetAngle());
+				rectangle.setFillColor(sf::Color(100, 250, 50));
+				Window1.draw(rectangle);
+
+				sf::RectangleShape rectangle1(sf::Vector2f(20, 100));
+				rectangle1.setPosition(obstacleobje->GetPosition().x * SCALE + 100, obstacleobje->GetPosition().y * SCALE + 100);
+				rectangle1.setRotation(180 / b2_pi * obstacleobje->GetAngle());
+				rectangle1.setFillColor(sf::Color(100, 250, 50));
+				Window1.draw(rectangle1);
+
+				sf::ConvexShape obstacleshape;
+				obstacleshape.setPointCount(4);
+				obstacleshape.setPoint(0, sf::Vector2f(-100, -100));
+				obstacleshape.setPoint(1, sf::Vector2f(120, 100));
+				obstacleshape.setPoint(2, sf::Vector2f(100, 100));
+				obstacleshape.setPoint(3, sf::Vector2f(-120, -100));
+
+
+				obstacleshape.setPosition(obstacleobje->GetPosition().x * SCALE, obstacleobje->GetPosition().y * SCALE);
+				obstacleshape.setRotation(180 / b2_pi * obstacleobje->GetAngle());
+
+				obstacleshape.setFillColor(sf::Color(100, 250, 50));
+				Window1.draw(obstacleshape);
+			}
+
+			sf::CircleShape robot_shape(25);
+			robot_shape.setOrigin(25, 25);
+			robot_shape.setPosition(motiongraph[0].coordinate.x, motiongraph[0].coordinate.y);
+			robot_shape.setFillColor(sf::Color::Blue);
+			//robot_shape.setRotation(robot->GetAngle() * 180 / b2_pi);
+			Window1.draw(robot_shape);
+
+			sf::RectangleShape object1_shape(sf::Vector2f(50, 50));
+			object1_shape.setOrigin(25, 25);
+			object1_shape.setPosition(motiongraph[motiongraph.size()-1].coordinate.x, motiongraph[motiongraph.size() - 1].coordinate.y);
+			object1_shape.setFillColor(sf::Color::Red);
+			//object1_shape.setRotation(object1->GetAngle() * 180 / b2_pi);
+			Window1.draw(object1_shape);
+
+			for (int i = 0; i<yol.size()-1; i++) {
+				sf::VertexArray lines1(sf::LinesStrip, 2);
+				lines1[0].position = sf::Vector2f(motiongraph[yol[i]].coordinate.x, motiongraph[yol[i]].coordinate.y);
+				lines1[1].position = sf::Vector2f(motiongraph[yol[i+1]].coordinate.x, motiongraph[yol[i+1]].coordinate.y);
+				lines1[0].color = sf::Color::Yellow;
+				lines1[1].color = sf::Color::Yellow;
 				
-				
-				printf("%d\n",say);
-				//sf::sleep(sf::seconds(1));
-				if (motiongraph[yol[say + 1]].coordinate.x == motiongraph[yol[say]].coordinate.x && motiongraph[yol[say + 1]].coordinate.y == motiongraph[yol[say]].coordinate.y)
-					say++;
-			    ilki = 1;
+				Window1.draw(lines1);
 				
 			}
+
+			Window1.display();
 		}
-		
-		
-		Window.display();
 	}
-	
-	printf("simulation ended\n ");
-	
+	////
 	vector<node>().swap(motiongraph);
 	system("PAUSE");
 	return 0;
